@@ -1,0 +1,84 @@
+@fragment 
+fn fs( @builtin(position) pos : vec4f ) -> @location(0) vec4f {
+  let npos  = uvN( pos.xy );
+  let last = lastframe(npos).rgb;
+  var out = vec3f(0.);
+  if frame/60 < 7.9 { out += 0.85 * last + .4 * phase1(pos); }
+  else if frame/60 < 8 { out += .85 * last * (1. - abs(uv(pos.xy).x)); }
+  else if frame/60 < 12.1 { out += 0.75 * last + .3 * phase2(pos); }
+  else if frame/60 < 18 { out += .75 * phase3(pos) + .5 * last; }
+  else { out += 0.5 * last; }
+  if frame/60 > 14.1 && frame/60 < 18 { out += obrit(pos); }
+  return vec4f(out, 1.);
+}
+
+fn phase1( pos:vec4f ) -> vec3f {
+  let npos  = uvN( pos.xy );
+  let frequency = 7.;
+  let waveSize = .1 * norm( cos(PI * frame/240 + PI) );
+  let smoothnpos = vec2f(smoothstep(0, 1, npos.x), smoothstep(0, 1, npos.y));
+  var color = vec3(0.);
+  let c = vec3(npos.x, 1. - npos.x, 1.);
+
+  for( var i:f32 = 0.; i < frequency; i+= 1. ) {
+    color += c * animatedWave( (smoothnpos * 2. - 1.), npos.x * 10. * waveSize, PI2 * i / frequency, .65 );
+    color += c.grb * animatedWave( (smoothnpos * 2. - 1.), (1. - npos.x) * 10. * waveSize, PI2 * i / frequency, -.65 );
+  }
+  return color + particles(pos, pow(frame/60, 2));
+}
+
+fn phase2( pos:vec4f ) -> vec3f {
+  let r = .1 * norm(cos(PI + PI * frame/60));
+  var color = vec3(0.);
+  for( var i:f32 = 0.; i < 20.; i+= 1. ) {
+    color += vec3(norm(sin(i)), norm(cos(i)), norm(cos(frame/30))) * circle(uvN(pos.xy), r * i);
+  }
+  return color;
+}
+
+fn plotw( x:f32, pct:f32, width:f32 ) -> f32 {
+  return smoothstep( pct - width, pct, x ) - smoothstep( pct, pct + width, x );
+}
+
+fn animatedWave( p:vec2f, size:f32, offset:f32, speed:f32 ) -> f32 {
+  return plotw( p.y, size * sin( p.x * PI + offset + PI * speed * frame / 60 ), 0.02 ) / 2.;
+}
+
+fn circle( p:vec2f, radius:f32) -> f32 { return plotw( radius, distance(p, vec2(0.5)), 0.015); } // plot a circle
+
+fn norm( x:f32 ) -> f32 { return (x + 1.) / 2.; } // convert a value between -1 and 1 to a value from 0 to 1
+
+fn phase3( pos:vec4f ) -> vec3f {
+  var p = uv(pos.xy);
+  var theta = 0.;
+  var color = vec3(0.);
+  for( var i:f32 = 0.; i < 16.; i+= 1. ) {
+    color += vec3(norm(sin(i)), norm(cos(i)), norm(cos(frame/30))) * plotw( -p.y, p.x / cos(theta), 
+            .2 * (.15 + distance(p, vec2(0.)) - abs(p.x) / 2.) );
+    theta += PI * frame / 400;
+  }
+  return .4 * color + .4 * phase2(pos) + .6 * particles(pos, 20.);
+}
+
+fn particles( pos:vec4f, speed:f32 ) -> vec3f {
+  var color = 0.;
+  var point = vec2(0.);
+  for( var i:f32 = 1.; i < speed; i+= 1. ) {
+    point = vec2( fract(10000. * cos(frame * i * PI / 960.)), fract(1000. * sin(frame * i * PI / 960.)) );
+    color += plotw(.001, distance(uvN(pos.xy), point), .003);
+  }
+  return vec3(.4, .6, 1.) * color;
+}
+
+fn orbit( pos:vec4f ) -> vec3f {
+  var color = vec3(0.);
+  let r = .25 + cos(PI + PI * frame/60) / 5.;
+  var theta = PI;
+  var point = vec2(0.);
+  for( var i:f32 = 0.; i < 6; i+= 1. ) {
+    theta = PI * (i/3 + (.8+r) * frame/60.) * (2 * step(frame % 240., 120.) - 1.);
+    point = vec2(r * cos(theta) + .5, r * sin(theta) + .5);
+    color += vec3( plotw(.002, distance(uvN(pos.xy), point), .01) );
+  }
+  return color;
+}
