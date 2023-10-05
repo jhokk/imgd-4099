@@ -3,9 +3,9 @@
     "",
     "\\seagulls-main",
     "\\seagulls-main\\demos",
-    "\\seagulls-main\\demos\\2_one_uniform",
-    "\\seagulls-main\\demos\\3_using_coordinates"
+    "\\seagulls-main\\demos\\4_mouse_coordinates",
+    "\\seagulls-main\\demos\\8_video_feedback"
   ],
-  "SelectedNode": "\\seagulls-main\\demos\\3_using_coordinates\\frag.wgsl",
+  "SelectedNode": "\\seagulls-main\\demos\\8_video_feedback\\frag.wgsl",
   "PreviewInSolutionExplorer": false
 }
