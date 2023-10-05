@@ -1,4 +1,4 @@
-import { default as seagulls } from './seagulls.js'
+import { default as seagulls } from '../../seagulls-main/seagulls.js'
 
 const shader = `${seagulls.constants.vertex}
 
