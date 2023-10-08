@@ -2,19 +2,28 @@
 <html lang='en'>
   <head>
     <meta charset='utf-8'>
-    <script src='./jhokk.github.io/Assignments/Assignment2/main.test.js' type='module'></script>
-    <script src='./jhokk.github.io/seagulls-main/demos/loader.js'></script>
-
+    <script src='seagull-main/demos/1_simplest/main.js' type='module'></script>
     <script src='https://cdn.jsdelivr.net/npm/microlight@latest'></script>
 
-    <link href='./jhokk.github.io/seagulls-main/shared.test.css' rel='stylesheet'>
+    <link href='seagulls-main/demos/shared.css' rel='stylesheet'>
     <link rel='shortcut icon' href='data:image/x-icon;,' type='image/x-icon'>
   </head>
   <body>
     <h1>Hello World</h1>
     <p>I'm hosted with GitHub Pages.</p>
-    <canvas id="webgl" width="400" height="400" style="border: 1px solid black;">
-	    	Please use a browser that supports the "canvas" tag.
-	    </canvas>
+    <canvas></canvas>
+    <code class='code'>
+      // seagulls - simplest
+    </code>
   </body>
+  <script>
+    window.onload = function() {
+      fetch( './main.js' )
+        .then( res => res.text() )
+        .then( txt => {
+          document.querySelector('code').innerHTML = txt
+          microlight.reset('code') 
+        })
+    }
+  </script>
 </html>
